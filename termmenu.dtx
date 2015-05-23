@@ -1,0 +1,383 @@
+% \iffalse meta-comment
+% arara: pdflatex
+% arara: pdflatex
+%
+%%
+%% File: termmenu.dtx Copyright(C) 2015 Sean Allred
+%%
+%% termmenu.dtx may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License (LPPL),
+%% either version 1.3c of this license or (at your option)
+%% any later version.  The latest version of this license is
+%% in the file
+%%
+%%    http://www.latex-project.org/lppl.txt
+%%
+%% The released version is available from CTAN.
+%%
+%% -----------------------------------------------------------------------
+%%
+%% The development version can be found at
+%%
+%%    http://www.github.com/vermiculus/tex-termmenu
+%%
+%% for those people who are interested.
+%%
+%% -----------------------------------------------------------------------
+%%
+%
+%<*driver>
+\documentclass[full]{l3doc}
+%</driver>
+%<*driver|package>
+\def\ExplFileName{termmenu}
+\def\ExplFileVersion{0.1}
+\def\ExplFileDate{2015-05-23}
+\def\ExplFileDescription{Terminal-driven menu support}
+\def\ExplFileExtension{dtx}
+%</driver|package>
+%<*driver>
+\ifdefined\expl\error\else
+\def\expl3{\pkg{expl3}}
+\fi
+\begin{document}
+  \DocInput{\jobname.dtx}
+\end{document}
+%</driver>
+% \fi
+%
+% \title{^^A
+%   The \textsf{termmenu} package\\ Terminal-driven menu support^^A
+%   \thanks{This file describes v\ExplFileVersion,
+%     last revised \ExplFileDate.}^^A
+% }
+%
+% \author{^^A
+%  Sean Allred\thanks
+%    {^^A
+%      E-mail:
+%        \href{mailto:tex@seanallred.com}
+%          {tex@seanallred.com}^^A
+%    }^^A
+% }
+%
+% \date{Released \ExplFileDate}
+%
+% \maketitle
+%
+% \begin{documentation}
+%
+%   This module provides simple support for terminal-driven menus in
+%   \expl3.  Currently, its only use is for the in-development \expl3
+%   debugger, \pkg{tdb}, but I'm sure there are several uses for it
+%   beyond that.
+%
+%   \paragraph{Example of use}
+%    \begin{verbatim}
+% \termmenu_new:N \g_demo_termmenu
+% \termmenu_set_name:Nn \g_demo_termmenu { Demo }
+%
+% \termmenu_add:Nnnn \g_demo_termmenu { duck }
+%   { Oh,~you~know...~:) }
+%   { \msg_term:n { Quack! } }
+%
+% \termmenu_get_choice:NN \g_demo_termmenu \l_tmpa_tl
+% \termmenu_exec:NV \g_demo_termmenu \l_tmpa_tl
+%
+% \bye
+%    \end{verbatim}
+%    \begin{verbatim}
+% $ pdftex demo.tex
+% *************************************************
+% * Menu: Demo
+% *************************************************
+%
+% The following commands are available:
+%
+%     > duck
+%         Oh, you know... :)
+%
+% \choice=duck
+% *************************************************
+% * Quack!
+% *************************************************
+%    \end{verbatim}
+%
+% \section{Creating and initializing menus}
+%
+% \begin{function}[added = 2015-05-23]{\termmenu_new:N}
+%   \begin{syntax}
+%     \cs{termmenu_new:N} \meta{menu}
+%   \end{syntax}
+%   Creates a new \meta{menu} or raises an error if the name is
+%   already taken.  The declaration is global.  Initially, the menu
+%   will be empty.
+% \end{function}
+%
+% \begin{function}[added = 2015-05-23]{\termmenu_set_name:Nn}
+%   \begin{syntax}
+%     \cs{termmenu_set_name:Nn} \meta{menu} \Arg{name}
+%   \end{syntax}
+%   Give \meta{menu} a human-friendly name.  When a menu is being
+%   presented, \Arg{name} will appear as a title.  If no name is
+%   present, no name will be used.
+% \end{function}
+%
+% \begin{function}[added = 2015-05-23]{\termmenu_add:Nnnn}
+%   \begin{syntax}
+%     \cs{termmenu_add:Nn} \meta{menu} \Arg{option} \Arg{help text} \Arg{action}
+%   \end{syntax}
+%   Insert \meta{option} into a \meta{menu} and provide \meta{help
+%   text}.  When a menu is being presented, both \meta{option} and
+%   \meta{help text} will be shown.  If \meta{option} is acted upon
+%   (i.e. with \cs{termmenu_exec:Nn}), \meta{action} will be inserted
+%   into the input stream.
+% \end{function}
+%
+% \section{Using menus}
+%
+% To allow for ad-hoc processing based on a user's choices, menus are
+% shown and acted upon in two separate phases.
+%
+% \begin{function}[added = 2015-05-23]{\termmenu_get_choice:NN}
+%   \begin{syntax}
+%     \cs{termmenu_get_choice:NN} \meta{menu} \meta{tl var}
+%   \end{syntax}
+%   Present \meta{menu} to the user and prompt for a choice, which is
+%   locally placed in \meta{tl var}.
+% \end{function}
+%
+% \begin{function}[added = 2015-05-23]{\termmenu_exec:Nn, \termmenu_exec:NV}
+%   \begin{syntax}
+%     \cs{termmenu_exec:Nn} \meta{menu} \Arg{choice}
+%   \end{syntax}
+%   Executes the associated action for \meta{choice}.  See
+%   \cs{termmenu_add:Nnnn}.
+% \end{function}
+%
+% \section{Customizing output}
+%
+% \pkg{termmenu} has limited support for customization.
+%
+% \begin{variable}[added = 2015-05-23]{\l_termmenu_prompt_tl}
+%   This is the message displayed to the user when a menu is
+%   presented.  The default value is
+%   |The~following~commands~are~available:|.
+% \end{variable}
+%
+% \section{Inspection}
+%
+% \begin{function}[added = 2015-05-23]{\termmenu_show:N}
+%   \begin{syntax}
+%     \cs{termmenu_show:N} \meta{arg}
+%   \end{syntax}
+%   Show the contents of the menu.
+% \end{function}
+%
+% \section{Internal variables and functions}
+%
+% \begin{variable}[added = 2015-05-23]{\l__termmenu_spec_tl}
+%   This scratch variable holds the documentation and
+%   argument for an option when retrieved from the property
+%   list.
+% \end{variable}
+%
+% \begin{variable}[added = 2015-05-23]{\g__termmenu_doc_tl}
+%   This scratch variable stores the documentation for an option.
+%   It is necessary because none of |f|, |x|, |o|-type expansions
+%   seem to work where they need to.
+%^^A For reference, this place is \cs{@@_write_out:N}.
+% \end{variable}
+%
+% \begin{variable}[added = 2015-05-23]{\g__termmenu_names_prop}
+%   This property list stores the names of each menu.  Menus are
+%   keys and names are values.
+% \end{variable}
+%
+% \begin{function}[added = 2015-05-23]{\__termmenu_write_out:N}
+%   \begin{syntax}
+%     \cs{__termmenu_write_out:N} \meta{menu}
+%   \end{syntax}
+%   Writes out \meta{menu} to the terminal.  No associated actions
+%   are performed.  If \meta{menu} has a name (i.e., an entry in
+%   \cs{__termmenu_names_prop}), print it as well.
+% \end{function}
+%
+% \end{documentation}
+%
+% \begin{implementation}
+%
+% \section{Implementation}
+%
+%    \begin{macrocode}
+%<*package>
+%    \end{macrocode}
+%    \begin{macrocode}
+%<@@=termmenu>
+%    \end{macrocode}
+%
+% \begin{macro}{\termmenu_new:N, \termmenu_show:N, \termmenu_add:Nnnn}
+%   Each menu is implemented as a property list of options mapped
+%   to documentation and actions.  Each option is a property list
+%   key.  Since the there is no good way to distinguish between
+%   when documentation ends and an associated action begins, the
+%   documentation is placed in a group at the head of the key's
+%   value.\footnote{This could also be done with sequences, but I
+%   consider that unnecessary overhead and complication.}
+%    \begin{macrocode}
+\cs_set_eq:NN \termmenu_new:N \prop_new:N
+\cs_set_eq:NN \termmenu_show:N \prop_show:N
+\cs_new_protected_nopar:Nn \termmenu_add:Nnnn
+  { \prop_put:Nnn #1 {#2} { {#3} #4 } }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{variable}{\l_@@_spec_tl}
+%   This scratch variable holds the documentation and
+%   argument for an option when retrieved from the property
+%   list.
+%    \begin{macrocode}
+\tl_new:N \l_@@_spec_tl
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\termmenu_get_choice:NN}
+%   This function is a little interesting.  In order to keep
+%   the end-user's interface clean, we can't simply prompt
+%   for the destination variable.  Say, if the destination
+%   variable were something like
+%   \cs{l__some_confusing_variable_name}, this would cause
+%   \TeX{} to display that confusing variable name to the
+%   end-user as part of the prompt.
+%
+%   Instead, we ask for \cs{choice} (starting a new group to
+%   avoid clobbering any existing definition), but we have
+%   to get this value outside the group.  The
+%   |\expandafter\endgroup| trick works nicely
+%   here.\footnote{Furthermore, this is the official way to
+%   do it.  See \url{http://tex.stackexchange.com/a/246542}.}
+%    \begin{macrocode}
+\cs_new_protected:Nn \termmenu_get_choice:NN
+  {
+    \@@_write_out:N #1
+    \group_begin:
+      \ior_get_str:NN \c_term_ior \choice
+    \exp_args:NNNV \group_end:
+    \tl_set:Nn #2 \choice
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\termmenu_exec:Nn, \termmenu_exec:NV}
+%   This function is very simple: it retrieves the value for
+%   the option (the key to a property list) and puts it in a
+%   scratch variable.  The tail of this scratch variable is
+%   then inserted into the input stream.
+%
+%    \begin{macrocode}
+\cs_new_protected:Nn \termmenu_exec:Nn
+  {
+    \prop_get:NnN #1 {#2} \l_@@_spec_tl
+    \tl_tail:N \l_@@_spec_tl
+  }
+\cs_generate_variant:Nn \termmenu_exec:Nn { NV }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{variable}{\l_termmenu_prompt_tl}
+%   This public variable contains the text to be used as a
+%   prompt when displaying a menu.
+%    \begin{macrocode}
+\tl_new:N \l_termmenu_prompt_tl
+\tl_set:Nn \l_termmenu_prompt_tl
+ { The~following~commands~are~available: }
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{variable}{\g_@@_names_prop}
+%   Globally define the property list to store menu names.
+%    \begin{macrocode}
+\prop_new:N \g_@@_names_prop
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\termmenu_set_name:Nn}
+%   This function names a menu.  An entry is placed in
+%   \cs{g_@@_names_prop} with the menu as a key and its name as the
+%   value.
+%    \begin{macrocode}
+\cs_new_protected:Nn \termmenu_set_name:Nn
+ { \prop_put:Nnn \g__termmenu_names_prop {#1} {#2} }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{variable}{\g_@@_doc_tl}
+%   This variable should store the documentation string 
+%    \begin{macrocode}
+\tl_new:N \l__termmenu_doc_tl
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\@@_write_out:N}
+%   Perhaps the only truly complicated part of this package
+%   is this function.
+%    \begin{macrocode}
+\cs_generate_variant:Nn \iow_term:n { V }
+\cs_generate_variant:Nn \msg_term:n { V }
+\cs_new_protected:Nn \@@_write_out:N
+  {
+%    \end{macrocode}
+% First, we retrieve the name of the menu.  If it does not
+% exist, print a generic \enquote{Menu} header.  If it does
+% exist, print \enquote{Menu: \meta{title}}.
+%    \begin{macrocode}
+    \prop_get:NnN \g_@@_names_prop {#1} \l_@@_spec_tl
+    \quark_if_no_value:NTF \l_@@_spec_tl
+      { \msg_term:n { Menu } }
+      {
+        \tl_put_left:Nn \l_@@_spec_tl { Menu:~ }
+        \msg_term:V \l_@@_spec_tl
+      }
+%    \end{macrocode}
+% Then, display the prompt.  Note that \cs{iow_term:n}
+% without an argument will simply output one blank line.
+%    \begin{macrocode}
+    \iow_term:n { }
+    \iow_term:V \l_termmenu_prompt_tl
+    \iow_term:n { }
+    \prop_map_inline:Nn #1
+      {
+%    \end{macrocode}
+% As we loop through each entry, remember that the help text is
+% stored together with the action.  We use \cs{tl_head:N} to
+% retrieve just the documentation.
+%    \begin{macrocode}
+        \prop_get:NnN #1 {##1} \l_@@_spec_tl
+        \tl_set:No \l_@@_doc_tl
+          { \tl_head:N \l_@@_spec_tl }
+%    \end{macrocode}
+% Now, send wrapped output to the terminal that contains the
+% option name indented by four spaces, a new line, and the
+% documentation, all wrapped with a running indent of eight
+% spaces.  Note that since we introduce a new line with the
+% |\\| macro in \cs{iow_wrap:nnnN}, we get the first
+% indentation of the documentation for free.
+%    \begin{macrocode}
+        \iow_wrap:nnnN
+          {
+            \prg_replicate:nn {4} { \iow_char:N \ }
+            > ~ ##1 \\
+            \tl_use:N \l_@@_doc_tl
+          } { \prg_replicate:nn {8} { \ } } { } \iow_term:n
+      }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+%    \begin{macrocode}
+%</package>
+%    \end{macrocode}
+%
+% \end{implementation}
+%
+% \PrintIndex
