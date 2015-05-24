@@ -1,0 +1,43 @@
+% -*- expl3 -*-
+% (prog1 (load "/Users/sean/github/auctex/expl3.el") (expl3-mode))
+\input expl3-generic \relax \ExplSyntaxOn
+\input termmenu \relax
+
+\termmenu_new:N \l_tmpa_termmenu
+\termmenu_set_name:Nn \l_tmpa_termmenu { Demo }
+ 
+\termmenu_add:Nnnn \l_tmpa_termmenu { help }
+ { Display~extended~help~for~this~menu. }
+ { \msg_term:n { Choose~an~animal~to~hear~its~sound. } }
+ 
+\termmenu_add:Nnnn \l_tmpa_termmenu { lion }
+ { Roar~like~a~lion. }
+ { \msg_term:n { Roar! } }
+ 
+\termmenu_add:Nnnn \l_tmpa_termmenu { dog }
+ { Bark~like~a~dog. }
+ { \msg_term:n { Bark! } }
+ 
+\termmenu_add:Nnnn \l_tmpa_termmenu { duck }
+ { Oh,~you~know...~:) }
+ { \msg_term:n { Quack! } }
+
+\termmenu_add:Nnnn \l_tmpa_termmenu { long }
+ {
+  Write~and~excessively~long~message~to~the~terminal.~
+  This~can~be~used~to~test~line-wrapping~functionality.~
+  Don't~use~this~too~often.
+ }
+ {
+  \msg_term:n
+   {
+    This~is~a~*super*~long~line!~~I~don't~know~how~much~longer~I~can~
+    keep~this~up,~but~certainly~expl3~knows~how~to~wrap~text~with~one~
+    of~its~kernel~functions.
+   }
+ }
+ 
+\termmenu_get_choice:NN \l_tmpa_termmenu \g_tmpa_tl
+\termmenu_exec:NV \l_tmpa_termmenu \g_tmpa_tl
+
+\bye
