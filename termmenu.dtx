@@ -132,6 +132,15 @@
 %   \meta{help text} will be shown.  If \meta{option} is acted upon
 %   (i.e. with \cs{termmenu_exec:Nn}), \meta{action} will be inserted
 %   into the input stream.
+%
+%   To simplify the user experience, \meta{option} can be a
+%   comma-separated list of synonymous options.  This is often used to
+%   create \enquote*{shortcuts} to functionality; instead of always
+%   typing out |option|, the end-user can simply say |o| if something
+%   like the following is used:
+%   \begin{verbatim}
+% \termmenu_add:Nnnn \g_tmpa_termmenu { o, option } { ... } { ... }
+%   \end{verbatim}
 % \end{function}
 %
 % \section{Using menus}
@@ -139,12 +148,23 @@
 % To allow for ad-hoc processing based on a user's choices, menus are
 % shown and acted upon in two separate phases.
 %
-% \begin{function}[added = 2015-05-23]{\termmenu_get_choice:NN}
+% \begin{function}[added = 2015-05-24]{\termmenu_get:NNN}
+%   \begin{syntax}
+%     \cs{termmenu_get:NNN} \meta{menu} \meta{prompt} \meta{tl var}
+%   \end{syntax}
+%   Present \meta{menu} to the user and prompt for a choice, using
+%   \meta{prompt} as the token list read.  If the user's input matched
+%   a menu entry, this entry is locally placed in \meta{tl var}.
+%   Otherwise, \meta{tl var} will be \cs{q_no_value}.
+% \end{function}
+%
+% \begin{function}[added = 2015-05-23, updated = 2015-05-24]{\termmenu_get_choice:NN}
 %   \begin{syntax}
 %     \cs{termmenu_get_choice:NN} \meta{menu} \meta{tl var}
 %   \end{syntax}
-%   Present \meta{menu} to the user and prompt for a choice, which is
-%   locally placed in \meta{tl var}.
+%   This is a wrapper for \cs{termmenu_get:NNN}, except the
+%   token \cs{choice} is used as a prompt-value.  \cs{choice} is not
+%   overwritten by this function.
 % \end{function}
 %
 % \begin{function}[added = 2015-05-23]{\termmenu_exec:Nn, \termmenu_exec:NV}
@@ -190,8 +210,19 @@
 % \end{variable}
 %
 % \begin{variable}[added = 2015-05-23]{\g__termmenu_names_prop}
-%   This property list stores the names of each menu.  Menus are
-%   keys and names are values.
+%   This property list stores the names of each menu.  The keys of the
+%   property lists are menus (e.g., \cs{g_demo_termmenu}) and the
+%   values are their names.
+% \end{variable}
+%
+% \begin{variable}{\g__termmenu_tmp_tl}
+%   This scratch variable is used to help set \meta{tl var} from
+%   \cs{termmenu_get:NNN}.
+% \end{variable}
+%
+% \begin{variable}[added = 2015-05-24]{\g__termmenu_opt_bool}
+%   This scratch variable is used to signal if the user's input was
+%   able to match against a known option.
 % \end{variable}
 %
 % \begin{function}[added = 2015-05-23]{\__termmenu_write_out:N}
@@ -241,29 +272,91 @@
 %    \end{macrocode}
 % \end{variable}
 %
-% \begin{macro}{\termmenu_get_choice:NN}
-%   This function is a little interesting.  In order to keep
-%   the end-user's interface clean, we can't simply prompt
-%   for the destination variable.  Say, if the destination
-%   variable were something like
-%   \cs{l__some_confusing_variable_name}, this would cause
-%   \TeX{} to display that confusing variable name to the
-%   end-user as part of the prompt.
-%
-%   Instead, we ask for \cs{choice} (starting a new group to
-%   avoid clobbering any existing definition), but we have
-%   to get this value outside the group.  The
-%   |\expandafter\endgroup| trick works nicely
-%   here.\footnote{Furthermore, this is the official way to
-%   do it.  See \url{http://tex.stackexchange.com/a/246542}.}
+% \begin{variable}{\g_@@_tmp_tl}
+%   This scratch variable is used to escape the groups of mapping
+%   constructs (like \cs{prop_map_inline:Nn}).
 %    \begin{macrocode}
-\cs_new_protected:Nn \termmenu_get_choice:NN
+\tl_new:N \g_@@_tmp_tl
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{variable}{\g_@@_opt_bool}
+%   This scratch variable is used to signal if a suitable option was
+%   found when searching for a match based on user input.  Since it is
+%   used inside two inlined mappings, it is most straightforward for
+%   all assignments to be global.
+%    \begin{macrocode}
+\bool_new:N \g_@@_opt_bool
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\termmenu_get:NNN}
+%   This function retrieves input for |#1| as |#2| and stores the
+%   matching entry in |#3|.  We must take care for option synonyms.
+%    \begin{macrocode}
+\cs_new_protected:Nn \termmenu_get:NNN
   {
+%    \end{macrocode}
+% First, we want to display the menu to the user using
+% \cs{@@_write_out}.
+%    \begin{macrocode}
     \@@_write_out:N #1
+%    \end{macrocode}
+% Next, retrieve a value for |#2|, the prompt variable.
+%    \begin{macrocode}
+    \ior_get_str:NN \c_term_ior #2
+%    \end{macrocode}
+% Now, we start our search for a match.  Begin by looping through the
+% entries in our menu.
+%    \begin{macrocode}
+    \prop_map_inline:Nn #1
+      {
+%    \end{macrocode}
+% If the input value is in the list of synonyms, set our output value
+% to the full list, indicate that we've found a match, and break out
+% of the loop.
+%    \begin{macrocode}
+        \clist_if_in:nVT {##1} #2
+          {
+            \tl_gset:Nn \g_@@_tmp_tl {##1}
+            \bool_gset_true:N \g_@@_opt_bool
+            \prop_map_break:
+          }
+      }
+    \tl_set_eq:NN #3 \g_@@_tmp_tl
+%    \end{macrocode}
+% If we haven't set \cs{g_@@_opt_bool} by the time we've finished
+% looking, we never found anything.  Set |#3| to \cs{q_no_value} to
+% indicate the lack of a match and reset the value of
+% \cs{g_@@_opt_bool}.
+%    \begin{macrocode}
+    \bool_if:NF \g_@@_opt_bool
+      { \tl_set:Nn #3 { \q_no_value } }
+    \bool_gset_false:N \g_@@_opt_bool
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\termmenu_get_choice:NN}
+%   This function is a little interesting.  In order to keep the
+%   end-user's interface clean, we can't simply prompt for the
+%   destination variable.  Say, if the destination variable were
+%   something like \cs{l__some_confusing_variable_name}, this would
+%   cause \TeX{} to display that confusing variable name to the
+%   end-user as part of the prompt.  Instead, we ask for \cs{choice}
+%   (starting a new group to avoid clobbering any existing definition)
+%   and store the result in \cs{out}, but we have to get this value
+%   outside the group.  The |\expandafter\endgroup| trick works nicely
+%   here (and is the
+%   official\footnote{\url{http://tex.stackexchange.com/a/246542}} way
+%   to do this).
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \termmenu_get_choice:NN
+  {
     \group_begin:
-      \ior_get_str:NN \c_term_ior \choice
+      \termmenu_get:NNN #1 \choice \out
     \exp_args:NNNV \group_end:
-    \tl_set:Nn #2 \choice
+    \tl_set:Nn #2 \out
   }
 %    \end{macrocode}
 % \end{macro}
@@ -363,7 +456,7 @@
         \iow_wrap:nnnN
           {
             \prg_replicate:nn {4} { \iow_char:N \ }
-            > ~ ##1 \\
+            > ~ \clist_use:nn {##1} { ,~ } \\
             \tl_use:N \l_@@_doc_tl
           } { \prg_replicate:nn {8} { \ } } { } \iow_term:n
       }

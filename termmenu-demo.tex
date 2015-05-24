@@ -6,23 +6,23 @@
 \termmenu_new:N \l_tmpa_termmenu
 \termmenu_set_name:Nn \l_tmpa_termmenu { Demo }
  
-\termmenu_add:Nnnn \l_tmpa_termmenu { help }
+\termmenu_add:Nnnn \l_tmpa_termmenu { h, ?, help }
   { Display~extended~help~for~this~menu. }
   { \msg_term:n { Choose~an~animal~to~hear~its~sound. } }
  
-\termmenu_add:Nnnn \l_tmpa_termmenu { lion }
+\termmenu_add:Nnnn \l_tmpa_termmenu { l, lion }
   { Roar~like~a~lion. }
   { \msg_term:n { Roar! } }
  
-\termmenu_add:Nnnn \l_tmpa_termmenu { dog }
+\termmenu_add:Nnnn \l_tmpa_termmenu { d, dog }
   { Bark~like~a~dog. }
   { \msg_term:n { Bark! } }
  
-\termmenu_add:Nnnn \l_tmpa_termmenu { duck }
+\termmenu_add:Nnnn \l_tmpa_termmenu { k, duck }
   { Oh,~you~know...~:) }
   { \msg_term:n { Quack! } }
 
-\termmenu_add:Nnnn \l_tmpa_termmenu { long }
+\termmenu_add:Nnnn \l_tmpa_termmenu { t, long }
   {
     Write~and~excessively~long~message~to~the~terminal.~
     This~can~be~used~to~test~line-wrapping~functionality.~
@@ -30,7 +30,10 @@
   }
   { \msg_term:n { Wow,~all~of~that~for~nothing. } }
  
-\termmenu_get_choice:NN \l_tmpa_termmenu \g_tmpa_tl
-\termmenu_exec:NV \l_tmpa_termmenu \g_tmpa_tl
+\termmenu_get_choice:NN \l_tmpa_termmenu \l_tmpa_tl
+
+\quark_if_no_value:NTF \l_tmpa_tl
+  { \msg_term:n { Whoops! } }
+  { \termmenu_exec:NV \l_tmpa_termmenu \l_tmpa_tl }
 
 \bye
