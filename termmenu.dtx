@@ -68,7 +68,7 @@
 % \begin{documentation}
 %
 %   This module provides simple support for terminal-driven menus in
-%   \expl3.  Currently, its only use is for the in-development \expl3
+%   \expl3.  Currently, its only use is for an in-development \expl3
 %   debugger, \pkg{tdb}, but I'm sure there are several uses for it
 %   beyond that.
 %
@@ -125,7 +125,7 @@
 %
 % \begin{function}[added = 2015-05-23]{\termmenu_add:Nnnn}
 %   \begin{syntax}
-%     \cs{termmenu_add:Nn} \meta{menu} \Arg{option} \Arg{help text} \Arg{action}
+%     \cs{termmenu_add:Nnnn} \meta{menu} \Arg{option} \Arg{help text} \Arg{action}
 %   \end{syntax}
 %   Insert \meta{option} into a \meta{menu} and provide \meta{help
 %   text}.  When a menu is being presented, both \meta{option} and
@@ -235,7 +235,7 @@
 % \begin{variable}{\l_@@_spec_tl}
 %   This scratch variable holds the documentation and
 %   argument for an option when retrieved from the property
-%   list.
+%   list.  It is also used to hold the title of a menu.
 %    \begin{macrocode}
 \tl_new:N \l_@@_spec_tl
 %    \end{macrocode}
@@ -312,7 +312,7 @@
 % \end{macro}
 %
 % \begin{variable}{\g_@@_doc_tl}
-%   This variable should store the documentation string 
+%   This variable stores the help text for an option.
 %    \begin{macrocode}
 \tl_new:N \l__termmenu_doc_tl
 %    \end{macrocode}
