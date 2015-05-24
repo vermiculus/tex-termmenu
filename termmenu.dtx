@@ -89,7 +89,7 @@
 %    \begin{verbatim}
 % $ pdftex demo.tex
 % *************************************************
-% * Menu: Demo
+% * Demo
 % *************************************************
 %
 % The following commands are available:
@@ -329,15 +329,12 @@
 %    \end{macrocode}
 % First, we retrieve the name of the menu.  If it does not
 % exist, print a generic \enquote{Menu} header.  If it does
-% exist, print \enquote{Menu: \meta{title}}.
+% exist, use \meta{title} as the header.
 %    \begin{macrocode}
     \prop_get:NnN \g_@@_names_prop {#1} \l_@@_spec_tl
     \quark_if_no_value:NTF \l_@@_spec_tl
       { \msg_term:n { Menu } }
-      {
-        \tl_put_left:Nn \l_@@_spec_tl { Menu:~ }
-        \msg_term:V \l_@@_spec_tl
-      }
+      { \msg_term:V \l_@@_spec_tl }
 %    \end{macrocode}
 % Then, display the prompt.  Note that \cs{iow_term:n}
 % without an argument will simply output one blank line.
