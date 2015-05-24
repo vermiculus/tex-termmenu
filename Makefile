@@ -1,4 +1,5 @@
-EPOCH=$(shell date -j -f "%a %b %d %T %Z %Y" "`date`" "+%s")
+TRASH := ./.trash-$(shell date -j -f "%a %b %d %T %Z %Y" "`date`" "+%s")
+CRUFT := $(addprefix termmenu.,aux glo hd idx log out pdf tex)
 
 .PHONY: clean all ctan
 
@@ -9,17 +10,11 @@ README:
 	cp README.md README
 
 clean:
-	mkdir .trash-$(EPOCH)
-	(test -f README          && mv -f README            .trash-$(EPOCH)/) || true
-	(test -f termmenu.aux    && mv -f termmenu.aux      .trash-$(EPOCH)/) || true
-	(test -f termmenu.glo    && mv -f termmenu.glo      .trash-$(EPOCH)/) || true
-	(test -f termmenu.hd     && mv -f termmenu.hd       .trash-$(EPOCH)/) || true
-	(test -f termmenu.idx    && mv -f termmenu.idx      .trash-$(EPOCH)/) || true
-	(test -f termmenu.log    && mv -f termmenu.log      .trash-$(EPOCH)/) || true
-	(test -f termmenu.out    && mv -f termmenu.out      .trash-$(EPOCH)/) || true
-	(test -f termmenu.pdf    && mv -f termmenu.pdf      .trash-$(EPOCH)/) || true
-	(test -f termmenu.tar.gz && mv -f termmenu.tar.gz   .trash-$(EPOCH)/) || true
-	(test -f termmenu.tex    && mv -f termmenu.tex      .trash-$(EPOCH)/) || true
+	mkdir $(TRASH)
+	mv $(foreach file,$(CRUFT),$(file)) $(TRASH)/ 2>/dev/null || true
+
+hard-clean: clean
+	rm -rf .trash-*/
 
 termmenu.pdf: termmenu.dtx
 	arara termmenu.dtx
@@ -42,4 +37,4 @@ termmenu.tar.gz: termmenu.pdf termmenu.tex README
 	"termmenu.tex=tex/generic/termmenu" \
 	"termmenu.dtx=source/generic/termmenu"
 
-ctan: termmenu.tar.gz
+ctan: | termmenu.tar.gz clean
