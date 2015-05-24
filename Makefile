@@ -1,5 +1,6 @@
+PACKAGE = termmenu
 TRASH := ./.trash-$(shell date -j -f "%a %b %d %T %Z %Y" "`date`" "+%s")
-CRUFT := $(addprefix termmenu.,aux glo hd idx log out pdf tex)
+CRUFT := $(addprefix $(PACKAGE).,aux glo hd idx log out)
 
 .PHONY: clean all ctan
 
@@ -15,26 +16,28 @@ clean:
 
 hard-clean: clean
 	rm -rf .trash-*/
+	rm -f $(PACKAGE).pdf
+	rm -f $(PACKAGE).tex
 
-termmenu.pdf: termmenu.dtx
-	arara termmenu.dtx
+$(PACKAGE).pdf: $(PACKAGE).dtx
+	arara $(PACKAGE).dtx
 
-termmenu.tex: termmenu.dtx
-	yes | tex termmenu.ins
+$(PACKAGE).tex: $(PACKAGE).dtx
+	yes | tex $(PACKAGE).ins
 
-termmenu.zip: termmenu.pdf termmenu.dtx termmenu.ins README.md
-	mkdir -p termmenu
-	cp  README       termmenu/
-	cp  termmenu.pdf termmenu/
-	cp  termmenu.dtx termmenu/
-	cp  termmenu.ins termmenu/
-	zip termmenu.zip termmenu/*
+$(PACKAGE).zip: $(PACKAGE).pdf $(PACKAGE).dtx $(PACKAGE).ins README.md
+	mkdir -p $(PACKAGE)
+	cp  README         $(PACKAGE)/
+	cp  $(PACKAGE).pdf $(PACKAGE)/
+	cp  $(PACKAGE).dtx $(PACKAGE)/
+	cp  $(PACKAGE).ins $(PACKAGE)/
+	zip $(PACKAGE).zip $(PACKAGE)/*
 
-termmenu.tar.gz: termmenu.pdf termmenu.tex README
-	ctanify "termmenu.ins=tex/generic/termmenu" \
-	"termmenu.pdf=doc/generic/termmenu" \
-	"README=doc/generic/termmenu" \
-	"termmenu.tex=tex/generic/termmenu" \
-	"termmenu.dtx=source/generic/termmenu"
+$(PACKAGE).tar.gz: $(PACKAGE).pdf $(PACKAGE).tex README
+	ctanify "$(PACKAGE).ins=tex/generic/$(PACKAGE)" \
+	"$(PACKAGE).pdf=doc/generic/$(PACKAGE)" \
+	"README=doc/generic/$(PACKAGE)" \
+	"$(PACKAGE).tex=tex/generic/$(PACKAGE)" \
+	"$(PACKAGE).dtx=source/generic/$(PACKAGE)"
 
-ctan: | termmenu.tar.gz clean
+ctan: | $(PACKAGE).tar.gz clean
