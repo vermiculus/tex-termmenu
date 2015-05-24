@@ -1,11 +1,18 @@
-.PHONY: clean
+.PHONY: clean all
 
-termmenu.pdf: termmenu.dtx
-	arara termmenu.dtx
+all: termmenu.tex termmenu.pdf termmenu.zip
+	$(info Complete)
 
 clean:
 	rm termmenu.zip
 	rm -rf termmenu
+
+termmenu.pdf: termmenu.dtx
+	arara termmenu.dtx
+
+termmenu.tex: termmenu.dtx
+	rm -f termmenu.tex
+	tex termmenu.ins
 
 termmenu.zip: termmenu.pdf termmenu.dtx termmenu.ins README.md
 	mkdir -p termmenu
