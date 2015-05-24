@@ -1,5 +1,8 @@
 % \iffalse meta-comment
+% arara: clean: { files: [ termmenu.aux, termmenu.glo, termmenu.hd, termmenu.idx, termmenu.ilg, termmenu.ind, termmenu.out ] }
 % arara: pdflatex
+% !arara: makeindex
+% !arara: pdflatex
 % arara: pdflatex
 %
 %%
@@ -435,15 +438,20 @@
     \iow_term:n { }
     \iow_term:V \l_termmenu_prompt_tl
     \iow_term:n { }
+%    \end{macrocode}
+% We want to display each option with its help text in a way that is
+% easy to read.
+%    \begin{macrocode}
     \prop_map_inline:Nn #1
       {
 %    \end{macrocode}
-% As we loop through each entry, remember that the help text is
-% stored together with the action.  We use \cs{tl_head:N} to
-% retrieve just the documentation.
+% Remember the structure of each key's (i.e., option's) value in the
+% property list.  The help text is braced at the head of the value
+% (with the action trailing behind).  Since the help text is braced,
+% we can use \cs{tl_head:N} to retrieve just the documentation.
 %    \begin{macrocode}
         \prop_get:NnN #1 {##1} \l_@@_spec_tl
-        \tl_set:No \l_@@_doc_tl
+        \tl_set:Nn \l_@@_doc_tl
           { \tl_head:N \l_@@_spec_tl }
 %    \end{macrocode}
 % Now, send wrapped output to the terminal that contains the
@@ -455,10 +463,10 @@
 %    \begin{macrocode}
         \iow_wrap:nnnN
           {
-            \prg_replicate:nn {4} { \iow_char:N \ }
+            \prg_replicate:nn {4} { \iow_char:N \  }
             > ~ \clist_use:nn {##1} { ,~ } \\
             \tl_use:N \l_@@_doc_tl
-          } { \prg_replicate:nn {8} { \ } } { } \iow_term:n
+          } { \prg_replicate:nn {8} { \  } } { } \iow_term:n
       }
   }
 %    \end{macrocode}
