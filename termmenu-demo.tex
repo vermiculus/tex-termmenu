@@ -29,11 +29,16 @@
     Don't~use~this~too~often.
   }
   { \msg_term:n { Wow,~all~of~that~for~nothing. } }
- 
-\termmenu_get_choice:NN \l_tmpa_termmenu \l_tmpa_tl
 
-\quark_if_no_value:NTF \l_tmpa_tl
+% a: input; b: output
+\termmenu_do:NNN \l_tmpa_termmenu \l_tmpa_tl \l_tmpb_tl
+
+\msg_term:n { input ~ was ~ `\tl_use:N \l_tmpa_tl' }
+
+\quark_if_no_value:NT \l_tmpb_tl
   { \msg_term:n { Whoops! } }
-  { \termmenu_exec:NV \l_tmpa_termmenu \l_tmpa_tl }
+  { \tl_use:N \l_tmpb_tl }
+
+\termmenu_do:N \l_tmpa_termmenu
 
 \bye

@@ -34,15 +34,12 @@
 %</driver>
 %<*driver|package>
 \def\ExplFileName{termmenu}
-\def\ExplFileVersion{0.1}
-\def\ExplFileDate{2015-05-23}
+\def\ExplFileVersion{0.2}
+\def\ExplFileDate{2015-05-24}
 \def\ExplFileDescription{Terminal-driven menu support}
 \def\ExplFileExtension{dtx}
 %</driver|package>
 %<*driver>
-\ifdefined\expl\error\else
-\def\expl3{\pkg{expl3}}
-\fi
 \begin{document}
   \DocInput{\jobname.dtx}
 \end{document}
@@ -71,21 +68,18 @@
 % \begin{documentation}
 %
 %   This module provides simple support for terminal-driven menus in
-%   \expl3.  Currently, its only use is for an in-development \expl3
-%   debugger, \pkg{tdb}, but I'm sure there are several uses for it
-%   beyond that.
+%   \pkg{expl3}.
 %
 %   \paragraph{Example of use}
 %    \begin{verbatim}
 % \termmenu_new:N \g_demo_termmenu
 % \termmenu_set_name:Nn \g_demo_termmenu { Demo }
 %
-% \termmenu_add:Nnnn \g_demo_termmenu { duck }
+% \termmenu_add:Nnnn \g_demo_termmenu { d, duck }
 %   { Oh,~you~know...~:) }
 %   { \msg_term:n { Quack! } }
 %
-% \termmenu_get_choice:NN \g_demo_termmenu \l_tmpa_tl
-% \termmenu_exec:NV \g_demo_termmenu \l_tmpa_tl
+% \termmenu_do:N \g_demo_termmenu
 %
 % \bye
 %    \end{verbatim}
@@ -97,10 +91,10 @@
 %
 % The following commands are available:
 %
-%     > duck
+%     > d, duck
 %         Oh, you know... :)
 %
-% \choice=duck
+% \choice=d
 % *************************************************
 % * Quack!
 % *************************************************
@@ -156,9 +150,8 @@
 %     \cs{termmenu_get:NNN} \meta{menu} \meta{prompt} \meta{tl var}
 %   \end{syntax}
 %   Present \meta{menu} to the user and prompt for a choice, using
-%   \meta{prompt} as the token list read.  If the user's input matched
-%   a menu entry, this entry is locally placed in \meta{tl var}.
-%   Otherwise, \meta{tl var} will be \cs{q_no_value}.
+%   \meta{prompt} as the token list read.  \meta{tl var} is set
+%   appropriately by \cs{termmenu_find_entry:NnN}.
 % \end{function}
 %
 % \begin{function}[added = 2015-05-23, updated = 2015-05-24]{\termmenu_get_choice:NN}
@@ -178,6 +171,15 @@
 %   \cs{termmenu_add:Nnnn}.
 % \end{function}
 %
+% \begin{function}[added = 2015-05-24]{\termmenu_find_entry:NnN}
+%   \begin{syntax}
+%     \cs{termmenu_get:NNN} \meta{menu} \Arg{query} \meta{tl var}
+%   \end{syntax}
+%   If \meta{query} matched an entry in \meta{menu}, this entry is
+%   locally placed in \meta{tl var}.  Otherwise, \meta{tl var} will be
+%   \cs{q_no_value}.
+% \end{function}
+%
 % \section{Customizing output}
 %
 % \pkg{termmenu} has limited support for customization.
@@ -194,7 +196,8 @@
 %   \begin{syntax}
 %     \cs{termmenu_show:N} \meta{arg}
 %   \end{syntax}
-%   Show the contents of the menu.
+%   Show the contents of the menu.  Right now, this is the same as
+%   \cs{prop_show:N}.
 % \end{function}
 %
 % \section{Internal variables and functions}
@@ -220,7 +223,7 @@
 %
 % \begin{variable}{\g__termmenu_tmp_tl}
 %   This scratch variable is used to help set \meta{tl var} from
-%   \cs{termmenu_get:NNN}.
+%   \cs{termmenu_find:NnN}.
 % \end{variable}
 %
 % \begin{variable}[added = 2015-05-24]{\g__termmenu_opt_bool}
@@ -261,7 +264,7 @@
 %    \begin{macrocode}
 \cs_set_eq:NN \termmenu_new:N \prop_new:N
 \cs_set_eq:NN \termmenu_show:N \prop_show:N
-\cs_new_protected_nopar:Nn \termmenu_add:Nnnn
+\cs_new_nopar:Nn \termmenu_add:Nnnn
   { \prop_put:Nnn #1 {#2} { {#3} #4 } }
 %    \end{macrocode}
 % \end{macro}
@@ -275,9 +278,91 @@
 %    \end{macrocode}
 % \end{variable}
 %
+% \begin{macro}{\termmenu_do:NNNNN}
+%   This convenience macro uses the menu |#1| to prompt the user for
+%   |#2|, setting their input to |#3|, setting the matched entry to
+%   |#4|, and storing the associated action in |#5|.
+%   <menu> <input> <prompt> <entry> <value>
+%    \begin{macrocode}
+\cs_new_nopar:Nn \termmenu_do:NNNNN
+  {\msg_term:n { NNNNN ~ \cs_to_str:N #1 ~ \cs_to_str:N #2 ~ \cs_to_str:N #3 ~ \cs_to_str:N #4 ~ \cs_to_str:N #5 }
+    \termmenu_display:N #1
+    \termmenu_prompt:NN #2 #3
+    \termmenu_entry:NVN #1 #2 #4
+    \termmenu_value:NVN #1 #4 #5
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\termmenu_do:NNNN}
+% <menu> <input> <prompt> <entry> >>value
+%    \begin{macrocode}
+\tl_new:N \l_@@_tmp_tl
+\cs_new_nopar:Nn \termmenu_do:NNNN % #1 tmp \choice tmp
+  {\msg_term:n { NNNN ~ \cs_to_str:N #1 ~ \cs_to_str:N #2 ~ \cs_to_str:N #3 ~ \cs_to_str:N #4 }
+    \tl_clear:N \l_@@_value_tl
+    \termmenu_do:NNNNN #1 #2 #3 #4 \l_@@_value_tl
+    \tl_use:N \l_@@_value_tl
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\termmenu_do:NNN}
+% <menu> <input> <value>
+%    \begin{macrocode}
+\cs_new_nopar:Nn \termmenu_do:NNN
+  {\msg_term:n { NNN~\cs_to_str:N #1 ~ \cs_to_str:N #2 ~ \cs_to_str:N #3 }
+ \termmenu_do:NNNNN #1 #2 \choice \l_@@_tmp_tl #3 }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\termmenu_do:NN}
+% <menu> <prompt>
+%    \begin{macrocode}
+\cs_new_nopar:Nn \termmenu_do:NN % #1 \choice
+  { \termmenu_do:NNNN #1 \l_@@_tmp_tl #2 \l_@@_tmp_tl }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\termmenu_do:N}
+% <menu>
+%    \begin{macrocode}
+\cs_new_nopar:Nn \termmenu_do:N
+  { \termmenu_do:NN #1 \choice }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\termmenu_get_action:NnN}
+%   This macro retrieves the action for |#2| in |#1| and places it in
+%   |#3|.  Remember that 
+%    \begin{macrocode}
+\cs_new_nopar:Nn \termmenu_value:NnN
+  {
+    \prop_get:NnN #1 {#2} \l_@@_spec_tl
+    \tl_set:Nf #3 { \tl_tail:N \l_@@_spec_tl } %@todo test expansion
+  }
+\cs_new_nopar:Nn \termmenu_value:Nn
+  {
+    \termmenu_value:NnN #1 {#2} \l_@@_tmp_tl
+    \tl_use:N \l_@@_tmp_tl
+  }
+\cs_new_nopar:Nn \termmenu_doc:NnN
+  {
+    \prop_get:NnN #1 {#2} \l_@@_spec_tl
+    \tl_set:Nf #3 { \tl_head:N \l_@@_spec_tl } %@todo test expansion
+  }
+\cs_new_nopar:Nn \termmenu_doc:Nn
+  {
+    \termmenu_doc:NnN #1 {#2} \l_@@_tmp_tl
+    \tl_use:N \l_@@_tmp_tl
+  }
+\cs_generate_variant:Nn \termmenu_value:NnN { NVN }
+\cs_generate_variant:Nn \termmenu_value:Nn { NV }
+\cs_generate_variant:Nn \termmenu_doc:NnN { NVN }
+\cs_generate_variant:Nn \termmenu_doc:Nn { NV }
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{variable}{\g_@@_tmp_tl}
 %   This scratch variable is used to escape the groups of mapping
-%   constructs (like \cs{prop_map_inline:Nn}).
+%   constructs (like \cs{prop_map_inline:Nn}).  See
+%   \cs{termmenu_find_entry:NnN}.
 %    \begin{macrocode}
 \tl_new:N \g_@@_tmp_tl
 %    \end{macrocode}
@@ -293,25 +378,12 @@
 %    \end{macrocode}
 % \end{variable}
 %
-% \begin{macro}{\termmenu_get:NNN}
-%   This function retrieves input for |#1| as |#2| and stores the
-%   matching entry in |#3|.  We must take care for option synonyms.
+% \begin{macro}{\termmenu_find_entry:NnN}
+%   Using the menu in |#1|, find a match for |#2| and stick that match
+%   in |#3|.
 %    \begin{macrocode}
-\cs_new_protected:Nn \termmenu_get:NNN
+\cs_new_nopar:Nn \termmenu_entry:NnN
   {
-%    \end{macrocode}
-% First, we want to display the menu to the user using
-% \cs{@@_write_out}.
-%    \begin{macrocode}
-    \@@_write_out:N #1
-%    \end{macrocode}
-% Next, retrieve a value for |#2|, the prompt variable.
-%    \begin{macrocode}
-    \ior_get_str:NN \c_term_ior #2
-%    \end{macrocode}
-% Now, we start our search for a match.  Begin by looping through the
-% entries in our menu.
-%    \begin{macrocode}
     \prop_map_inline:Nn #1
       {
 %    \end{macrocode}
@@ -319,48 +391,53 @@
 % to the full list, indicate that we've found a match, and break out
 % of the loop.
 %    \begin{macrocode}
-        \clist_if_in:nVT {##1} #2
+        \clist_if_in:nnT {##1} {#2}
           {
             \tl_gset:Nn \g_@@_tmp_tl {##1}
             \bool_gset_true:N \g_@@_opt_bool
             \prop_map_break:
           }
       }
-    \tl_set_eq:NN #3 \g_@@_tmp_tl
 %    \end{macrocode}
 % If we haven't set \cs{g_@@_opt_bool} by the time we've finished
 % looking, we never found anything.  Set |#3| to \cs{q_no_value} to
 % indicate the lack of a match and reset the value of
 % \cs{g_@@_opt_bool}.
 %    \begin{macrocode}
-    \bool_if:NF \g_@@_opt_bool
+    \bool_if:NTF \g_@@_opt_bool
+      { \tl_set_eq:NN #3 \g_@@_tmp_tl }
       { \tl_set:Nn #3 { \q_no_value } }
-    \bool_gset_false:N \g_@@_opt_bool
   }
+\cs_generate_variant:Nn \termmenu_entry:NnN { NVN }
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\termmenu_get_choice:NN}
+% \begin{macro}{\termmenu_prompt_nice:NNN}
 %   This function is a little interesting.  In order to keep the
 %   end-user's interface clean, we can't simply prompt for the
 %   destination variable.  Say, if the destination variable were
 %   something like \cs{l__some_confusing_variable_name}, this would
 %   cause \TeX{} to display that confusing variable name to the
-%   end-user as part of the prompt.  Instead, we ask for \cs{choice}
+%   end-user as part of the prompt.  Instead, we ask for |#2|
 %   (starting a new group to avoid clobbering any existing definition)
-%   and store the result in \cs{out}, but we have to get this value
-%   outside the group.  The |\expandafter\endgroup| trick works nicely
-%   here (and is the
+%   and store the result in \cs{out}.  Now we have to get this value
+%   outside the group and into |#3|.  The |\expandafter\endgroup|
+%   trick works nicely here (and is the
 %   official\footnote{\url{http://tex.stackexchange.com/a/246542}} way
 %   to do this).
+%
+% <variable> <prompt>
 %    \begin{macrocode}
-\cs_new_protected_nopar:Nn \termmenu_get_choice:NN
+\cs_new_nopar:Nn \termmenu_prompt:NN
   {
     \group_begin:
-      \termmenu_get:NNN #1 \choice \out
+      \termmenu_prompt:N #2
     \exp_args:NNNV \group_end:
-    \tl_set:Nn #2 \out
+    \tl_set:Nn #1 #2
   }
+% <variable>
+\cs_new_nopar:Nn \termmenu_prompt:N
+  { \ior_get_str:NN \c_term_ior #1 }
 %    \end{macrocode}
 % \end{macro}
 %
@@ -371,10 +448,10 @@
 %   then inserted into the input stream.
 %
 %    \begin{macrocode}
-\cs_new_protected:Nn \termmenu_exec:Nn
+\cs_new_nopar:Nn \termmenu_exec:Nn %@kill
   {
-    \prop_get:NnN #1 {#2} \l_@@_spec_tl
-    \tl_tail:N \l_@@_spec_tl
+    \termmenu_get_action:NnN #1 {#2} \l_@@_action_tl
+    \tl_use:N \l_@@_action_tl
   }
 \cs_generate_variant:Nn \termmenu_exec:Nn { NV }
 %    \end{macrocode}
@@ -397,12 +474,19 @@
 %    \end{macrocode}
 % \end{variable}
 %
+% \begin{macro}{\termmenu_get_name:Nn}
+%    \begin{macrocode}
+\cs_new_nopar:Nn \termmenu_get_name:NN
+ { \prop_get:NnN \g__termmenu_names_prop {#1} #2 }
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{macro}{\termmenu_set_name:Nn}
 %   This function names a menu.  An entry is placed in
 %   \cs{g_@@_names_prop} with the menu as a key and its name as the
 %   value.
 %    \begin{macrocode}
-\cs_new_protected:Nn \termmenu_set_name:Nn
+\cs_new_nopar:Nn \termmenu_set_name:Nn
  { \prop_put:Nnn \g__termmenu_names_prop {#1} {#2} }
 %    \end{macrocode}
 % \end{macro}
@@ -414,13 +498,13 @@
 %    \end{macrocode}
 % \end{variable}
 %
-% \begin{macro}{\@@_write_out:N}
+% \begin{macro}{\termmenu_display:N}
 %   Perhaps the only truly complicated part of this package
 %   is this function.
 %    \begin{macrocode}
 \cs_generate_variant:Nn \iow_term:n { V }
 \cs_generate_variant:Nn \msg_term:n { V }
-\cs_new_protected:Nn \@@_write_out:N
+\cs_new_nopar:Nn \termmenu_display:N
   {
 %    \end{macrocode}
 % First, we retrieve the name of the menu.  If it does not
@@ -461,10 +545,11 @@
 % |\\| macro in \cs{iow_wrap:nnnN}, we get the first
 % indentation of the documentation for free.
 %    \begin{macrocode}
+        \clist_set:Nn \l_@@_tmp_clist {##1}
         \iow_wrap:nnnN
           {
             \prg_replicate:nn {4} { \iow_char:N \  }
-            > ~ \clist_use:nn {##1} { ,~ } \\
+            > ~ \clist_use:Nn \l_@@_tmp_clist { ,~ } \\
             \tl_use:N \l_@@_doc_tl
           } { \prg_replicate:nn {8} { \  } } { } \iow_term:n
       }
