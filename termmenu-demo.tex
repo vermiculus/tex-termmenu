@@ -24,7 +24,7 @@
 
 \termmenu_add:Nnnn \l_tmpa_termmenu { t, long }
   {
-    Write~and~excessively~long~message~to~the~terminal.~
+    Write~an~excessively~long~message~to~the~terminal.~
     This~can~be~used~to~test~line-wrapping~functionality.~
     Don't~use~this~too~often.
   }
@@ -33,7 +33,7 @@
 % a: input; b: output
 \termmenu_do:NNN \l_tmpa_termmenu \l_tmpa_tl \l_tmpb_tl
 
-\msg_term:n { input ~ was ~ `\tl_use:N \l_tmpa_tl' }
+\msg_term:n { input~was~`\tl_use:N \l_tmpa_tl' }
 
 \quark_if_no_value:NT \l_tmpb_tl
   { \msg_term:n { Whoops! } }
