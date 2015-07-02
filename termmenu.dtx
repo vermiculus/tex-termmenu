@@ -1,5 +1,6 @@
 % \iffalse meta-comment
 % arara: clean: { files: [ termmenu.aux, termmenu.glo, termmenu.hd, termmenu.idx, termmenu.ilg, termmenu.ind, termmenu.out ] }
+% arara: make: { task: "termmenu.tex" }
 % arara: pdflatex
 % arara: makeindex: { style: gind.ist, options: "-o termmenu.ind" }
 % arara: pdflatex
@@ -30,17 +31,12 @@
 %%
 %
 %<*driver>
-\ProvidesFile{termmenu.tex}
 \documentclass[full]{l3doc}
-%</driver>
-%<*driver|package>
 \def\ExplFileName{termmenu}
 \def\ExplFileVersion{0.2}
-\def\ExplFileDate{2015-05-25}
+\def\ExplFileDate{2015-07-02}
 \def\ExplFileDescription{Terminal-driven menu support}
 \def\ExplFileExtension{dtx}
-%</driver|package>
-%<*driver>
 \begin{document}
 \renewcommand\partname{Part}
 \DoNotIndex{\g_demo_termmenu}
