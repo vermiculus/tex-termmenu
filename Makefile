@@ -37,6 +37,7 @@ $(PACKAGE).tar.gz: $(PACKAGE).pdf $(PACKAGE).tex README
 	ctanify "$(PACKAGE).ins=tex/generic/$(PACKAGE)" \
 	"$(PACKAGE).pdf=doc/generic/$(PACKAGE)" \
 	"README=doc/generic/$(PACKAGE)" \
+	"$(PACKAGE)-demo.tex=doc/generic/$(PACKAGE)" \
 	"$(PACKAGE).tex=tex/generic/$(PACKAGE)" \
 	"$(PACKAGE).dtx=source/generic/$(PACKAGE)"
 
