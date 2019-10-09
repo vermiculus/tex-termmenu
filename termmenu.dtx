@@ -76,7 +76,7 @@
 %
 % \termmenu_add:Nnnn \g_demo_termmenu { d, duck }
 %   { Oh,~you~know...~:) }
-%   { \msg_term:n { Quack! } }
+%   { \iow_term:n { Quack! } }
 %
 % \termmenu_do:N \g_demo_termmenu
 %
@@ -591,7 +591,6 @@
 %   make our lives easier.
 %    \begin{macrocode}
 \cs_generate_variant:Nn \iow_term:n { V }
-\cs_generate_variant:Nn \msg_term:n { V }
 \cs_new_nopar:Nn \termmenu_display:N
   {
 %    \end{macrocode}
@@ -601,8 +600,8 @@
 %    \begin{macrocode}
     \termmenu_get_name:NN #1 \l_@@_spec_tl
     \quark_if_no_value:NTF \l_@@_spec_tl
-      { \msg_term:n { Menu } }
-      { \msg_term:V \l_@@_spec_tl }
+      { \iow_term:n { Menu } }
+      { \iow_term:V \l_@@_spec_tl }
 %    \end{macrocode}
 % Display the prompt.  Note that \cs{iow_term:n} without an argument
 % will simply output one blank line.
